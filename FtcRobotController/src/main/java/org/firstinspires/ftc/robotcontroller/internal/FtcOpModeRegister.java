@@ -36,6 +36,10 @@ import com.qualcomm.robotcore.eventloop.opmode.OpModeRegister;
 
 import org.firstinspires.ftc.robotcontroller.external.samples.ConceptNullOp;
 import org.firstinspires.ftc.robotcontroller.external.samples.FirstOpMode;
+import org.firstinspires.ftc.robotcontroller.external.samples.HandOpMode;
+import org.firstinspires.ftc.robotcontroller.external.samples.TwistWristOpMode;
+import org.firstinspires.ftc.robotcontroller.external.samples.WheelOpMode;
+import org.firstinspires.ftc.robotcontroller.external.samples.ArmOpMode;
 
 /**
  * {@link FtcOpModeRegister} is responsible for registering opmodes for use in an FTC game.
@@ -64,6 +68,11 @@ public class FtcOpModeRegister implements OpModeRegister {
      */
     public void register(OpModeManager manager) {
         manager.register("firstOpMode", FirstOpMode.class);
+        manager.register( "twistWristOpMode", TwistWristOpMode.class);
+        manager.register( "handOpMode", HandOpMode.class);
+        manager.register( "wheelMode", WheelOpMode.class);
+        manager.register( "armMode", ArmOpMode.class);
+
         /**
          * Any manual OpMode class registrations should go here.
          */
