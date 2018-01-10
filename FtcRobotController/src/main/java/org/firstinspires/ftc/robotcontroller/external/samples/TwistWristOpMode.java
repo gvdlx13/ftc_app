@@ -43,8 +43,6 @@ public class TwistWristOpMode extends LinearOpMode {
             telemetry.update();
 
         }
-
-
     }
 
 }

@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 public class ArmOpMode extends LinearOpMode {
     private DcMotor armMotor;
+
     @Override
     public void runOpMode() {
         armMotor = hardwareMap.get(DcMotor.class, "arm");

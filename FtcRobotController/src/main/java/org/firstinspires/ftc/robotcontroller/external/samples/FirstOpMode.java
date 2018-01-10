@@ -17,10 +17,12 @@ public class FirstOpMode extends LinearOpMode {
     private DcMotor rightWheelMotor;
     private Servo leftClawServo;
     private Servo rightClawServo;
+    private SensorDigitalTouch touch;
 
 
     @Override
     public void runOpMode() {
+
         armMotor = hardwareMap.get(DcMotor.class, "arm");
         leftWheelMotor = hardwareMap.get(DcMotor.class, "leftWheel");
         rightWheelMotor = hardwareMap.get(DcMotor.class, "rightWheel");
@@ -54,12 +56,12 @@ public class FirstOpMode extends LinearOpMode {
                 rightClawServo.setPosition(open);
             }
 
-            if(this.gamepad1.dpad_down)
+            if(this.gamepad1.x)
             {
                 leftClawServo.setPosition(closed);
                 rightClawServo.setPosition(closed);
             }
-            else if (this.gamepad1.right_bumper)
+            else if (this.gamepad1.b)
             {
                 leftClawServo.setPosition(open);
                 rightClawServo.setPosition(open);
