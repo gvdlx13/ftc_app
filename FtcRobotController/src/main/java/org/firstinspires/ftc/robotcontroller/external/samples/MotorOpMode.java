@@ -35,7 +35,7 @@ public class MotorOpMode extends LinearOpMode {
             touchSensor.getState();
 
             color.green();
-            color.
+
 
         }
     }

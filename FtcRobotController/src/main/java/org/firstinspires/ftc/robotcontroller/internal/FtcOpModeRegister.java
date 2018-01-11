@@ -65,9 +65,7 @@ public class FtcOpModeRegister implements OpModeRegister {
      * @see com.qualcomm.robotcore.eventloop.opmode.Autonomous
      */
     public void register(OpModeManager manager) {
-        manager.register("toucheSensorOpMode", ToucheSensorOpMode.class);
         manager.register("FullRob", fullRobotOpMode.class);
-        manager.register("encoderOpMode", EncoderOpMode.class);
         /**
          * Any manual OpMode class registrations should go here.
          */
