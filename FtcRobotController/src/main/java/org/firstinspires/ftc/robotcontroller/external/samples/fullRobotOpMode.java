@@ -20,7 +20,7 @@ public class fullRobotOpMode extends LinearOpMode {
     private DcMotor rightWheelMotor;
     private Servo wrist;
     private DigitalChannel touch1;
-    private boolean armTopPosition;
+    private int armTopPosition;
     private int handOpened;
 
     @Override
@@ -59,8 +59,10 @@ public class fullRobotOpMode extends LinearOpMode {
                 break;
             }
         }
+        telemetry.addData("Press X or Stop", "finish autonomous");
 
         boolean aHeld = false;
+        boolean rBumperHeld = false;
         boolean bHeld = false;
         boolean yHeld = false;
 
@@ -79,16 +81,16 @@ public class fullRobotOpMode extends LinearOpMode {
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-            boolean operator2 = armTopPosition && twoOperators;
+            boolean operator2 = armTopPosition == 2 && twoOperators;
             Gamepad currentOperator = operator2 ? this.gamepad2 : this.gamepad1;
 
             if(currentOperator.b  && !bHeld)
             {
                 bHeld = true;
-                if(armTopPosition)
+                if(armTopPosition == 2)
                 {
                     bHeld = true;
-                    pushBlocks();
+                    pushBlocks(armTopPosition);
                 }
                 else
                 {
@@ -105,13 +107,13 @@ public class fullRobotOpMode extends LinearOpMode {
                 bHeld = false;
             }
 
-            if(currentOperator.y  && !bHeld)
+            if(currentOperator.y  && !yHeld)
             {
                 yHeld = true;
-                if(armTopPosition)
+                if(armTopPosition >= 1)
                 {
                     yHeld = true;
-                    pushBlocks();
+                    pushBlocks(armTopPosition);
                 }
                 else
                 {
@@ -125,7 +127,7 @@ public class fullRobotOpMode extends LinearOpMode {
             }
             else if(!currentOperator.y && yHeld)
             {
-                bHeld = false;
+                yHeld = false;
             }
 
 
@@ -139,7 +141,7 @@ public class fullRobotOpMode extends LinearOpMode {
             if (currentOperator.a && !aHeld)
             {
                 aHeld = true;
-                if (armTopPosition)
+                if (armTopPosition == 2)
                 {
                     seekLowerArmPosition();
                 }
@@ -153,12 +155,29 @@ public class fullRobotOpMode extends LinearOpMode {
                 aHeld = false;
             }
 
-            telemetry.addData("A Held Down", aHeld);
+            if (currentOperator.right_bumper && !rBumperHeld)
+            {
+                rBumperHeld = true;
+                if (armTopPosition == 1)
+                {
+                    seekLowerDropOffArmPosition();
+                }
+                else
+                {
+                    seekLowerArmPosition();
+                }
+            }
+            else if (!currentOperator.right_bumper && rBumperHeld)
+            {
+                rBumperHeld = false;
+            }
+
+            telemetry.addData("RB Held Down", rBumperHeld);
 
             telemetry.addData("armPosition", armMotor.getCurrentPosition());
 
-            leftWheelMotor.setPower(armTopPosition ? currentOperator.left_stick_y *  -1 : currentOperator.right_stick_y);
-            rightWheelMotor.setPower(armTopPosition ? currentOperator.right_stick_y *  -1 : currentOperator.left_stick_y);
+            leftWheelMotor.setPower(armTopPosition == 2 ? currentOperator.left_stick_y *  -1 : currentOperator.right_stick_y);
+            rightWheelMotor.setPower(armTopPosition == 2 ? currentOperator.right_stick_y *  -1 : currentOperator.left_stick_y);
 
             telemetry.addData("LeftStick", currentOperator.left_stick_y);
             telemetry.addData("RightStick", currentOperator.right_stick_y);
@@ -168,12 +187,12 @@ public class fullRobotOpMode extends LinearOpMode {
         }
     }
 
-    private void pushBlocks() {
+    private void pushBlocks(int armTopPosition) {
         openHand();
         sleep(2000);
         finger.setPower(1);
-        leftWheelMotor.setPower(-0.05);
-        rightWheelMotor.setPower(-0.05);
+        leftWheelMotor.setPower(armTopPosition == 2 ? -0.09 : 0.09);
+        rightWheelMotor.setPower(armTopPosition == 2 ? -0.09 : 0.09);
         sleep(2000);
         finger.setPower(0);
         seekLowerArmPosition();
@@ -185,21 +204,28 @@ public class fullRobotOpMode extends LinearOpMode {
     private void seekTopArmPosition(){
         armMotor.setTargetPosition(6750);
         armMotor.setPower(1);
-        armTopPosition = true;
+        armTopPosition = 2;
         seekWristVertical();
     }
 
     private void seekLowerArmPosition(){
         armMotor.setTargetPosition(19300);
         armMotor.setPower(1);
-        armTopPosition = false;
+        armTopPosition = 0;
         seekWristHorizontal();
+    }
+
+    private void seekLowerDropOffArmPosition(){
+        armMotor.setTargetPosition(18000);
+        armMotor.setPower(1);
+        armTopPosition = 1;
+        seekWristVertical();
     }
 
     private void seekDefaultArmPosition(){
         armMotor.setTargetPosition(0);
         armMotor.setPower(1);
-        hand.setPosition(0.5);
+        hand.setPosition(0.4);
         seekWristHorizontal();
     }
 
