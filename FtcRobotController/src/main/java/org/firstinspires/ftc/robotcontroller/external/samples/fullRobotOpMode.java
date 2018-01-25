@@ -16,27 +16,32 @@ public class fullRobotOpMode extends LinearOpMode {
     private DcMotor armMotor;
     private Servo hand;
     private CRServo finger;
+//    private CRServo finger2;
     private DcMotor leftWheelMotor;
     private DcMotor rightWheelMotor;
     private Servo wrist;
     private DigitalChannel touch1;
     private int armTopPosition;
     private int handOpened;
+    private boolean seekDefault;
 
     @Override
     public void runOpMode() throws InterruptedException {
         armMotor = hardwareMap.get(DcMotor.class, "arm");
         finger = hardwareMap.get(CRServo.class, "finger");
+//        finger2 = hardwareMap.get(CRServo.class, "finger2");
         finger.setDirection(DcMotorSimple.Direction.REVERSE);
-        armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        finger.setDirection(DcMotorSimple.Direction.REVERSE);
+//        armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         hand = hardwareMap.get(Servo.class, "hand");
         wrist = hardwareMap.get(Servo.class, "wrist");
         leftWheelMotor = hardwareMap.get(DcMotor.class, "leftWheel");
         rightWheelMotor = hardwareMap.get(DcMotor.class, "rightWheel");
-        touch1 = hardwareMap.get(DigitalChannel.class, "touch2");
+        touch1 = hardwareMap.get(DigitalChannel.class, "touchsen");
 
         boolean twoOperators = false;
+        seekDefault = false;
 
         telemetry.addLine("Choose Operator Mode Using Controller 1");
         telemetry.addData("Press X", "1 Operator");
@@ -59,7 +64,6 @@ public class fullRobotOpMode extends LinearOpMode {
                 break;
             }
         }
-        telemetry.addData("Press X or Stop", "finish autonomous");
 
         boolean aHeld = false;
         boolean rBumperHeld = false;
@@ -72,129 +76,131 @@ public class fullRobotOpMode extends LinearOpMode {
         hand.scaleRange(0.1, 0.6);
         wrist.scaleRange(0.1, .8);
 
-        seekLowerArmPosition();
+        armTopPosition = 4;
+
         telemetry.addData("Status", touch1.getState());
         telemetry.addData("Status", "Initialized");
         telemetry.update();
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
-
         // run until the end of the match (driver presses STOP)
+
         while (opModeIsActive()) {
             boolean operator2 = armTopPosition == 2 && twoOperators;
             Gamepad currentOperator = operator2 ? this.gamepad2 : this.gamepad1;
-
-            if(currentOperator.b  && !bHeld)
-            {
-                bHeld = true;
-                if(armTopPosition == 2)
-                {
+            if(!seekDefault) {
+                if (currentOperator.b && !bHeld) {
                     bHeld = true;
-                    pushBlocks(armTopPosition);
-                }
-                else
-                {
-                    if(handOpened != 2){
-                        closeHand();
+                    if (armTopPosition >= 1 && armTopPosition != 4) {
+                        bHeld = true;
+                        pushBlocks();
+                    } else if (armTopPosition != 4) {
+                        if (handOpened != 2) {
+                            closeHand();
+                        } else {
+                            openHand();
+                        }
                     }
-                    else{
-                        openHand();
-                    }
+                } else if (!currentOperator.b && bHeld) {
+                    bHeld = false;
                 }
-            }
-            else if(!currentOperator.b && bHeld)
-            {
-                bHeld = false;
-            }
 
-            if(currentOperator.y  && !yHeld)
-            {
-                yHeld = true;
-                if(armTopPosition >= 1)
-                {
+                telemetry.addData("B Held Down", bHeld);
+
+                if (currentOperator.y && !yHeld) {
                     yHeld = true;
-                    pushBlocks(armTopPosition);
-                }
-                else
-                {
-                    if(handOpened != 3){
-                        close2Hand();
+                    if (armTopPosition >= 1 && armTopPosition != 4) {
+                        yHeld = true;
+                        pushBlocks();
+                    } else if (armTopPosition !=4 ) {
+                        if (handOpened != 3) {
+                            close2Hand();
+                        } else {
+                            openHand();
+                        }
                     }
-                    else{
-                        openHand();
+                } else if (!currentOperator.y && yHeld) {
+                    yHeld = false;
+                }
+
+
+                telemetry.addData("Y Held Down", yHeld);
+
+                if (currentOperator.left_bumper) {
+                    seekDefaultPosition();
+                }
+
+                if (currentOperator.a && !aHeld) {
+                    aHeld = true;
+                    if (armTopPosition == 2 || armTopPosition == 4) {
+                        seekLowerArmPosition();
+                    } else {
+                        seekTopArmPosition();
                     }
+                } else if (!currentOperator.a && aHeld) {
+                    aHeld = false;
+                }
+
+                telemetry.addData("A Held Down", aHeld);
+
+                if (currentOperator.right_bumper && !rBumperHeld) {
+                    rBumperHeld = true;
+                    if (armTopPosition == 1) {
+                        seekLowerArmPosition();
+                    } else {
+                        seekLowerDropOffArmPosition();
+                    }
+                } else if (!currentOperator.right_bumper && rBumperHeld) {
+                    rBumperHeld = false;
+                }
+
+                telemetry.addData("RB Held Down", rBumperHeld);
+
+                telemetry.addData("armPosition", armMotor.getCurrentPosition());
+
+                if (currentOperator.dpad_up) {
+                    moveForward();
+                } else if (currentOperator.dpad_down) {
+                    moveBackward();
+                } else {
+                    leftWheelMotor.setPower(armTopPosition == 2 ? currentOperator.left_stick_y * -1 : currentOperator.right_stick_y);
+                    rightWheelMotor.setPower(armTopPosition == 2 ? currentOperator.right_stick_y * -1 : currentOperator.left_stick_y);
                 }
             }
-            else if(!currentOperator.y && yHeld)
+            else
             {
-                yHeld = false;
-            }
-
-
-            telemetry.addData("B Held Down", bHeld);
-
-            if (currentOperator.dpad_down)
-            {
-                seekDefaultArmPosition();
-            }
-
-            if (currentOperator.a && !aHeld)
-            {
-                aHeld = true;
-                if (armTopPosition == 2)
+                if(!touch1.getState())
                 {
-                    seekLowerArmPosition();
-                }
-                else
-                {
-                    seekTopArmPosition();
-                }
-            }
-            else if (!currentOperator.a && aHeld)
-            {
-                aHeld = false;
-            }
-
-            if (currentOperator.right_bumper && !rBumperHeld)
-            {
-                rBumperHeld = true;
-                if (armTopPosition == 1)
-                {
-                    seekLowerDropOffArmPosition();
-                }
-                else
-                {
-                    seekLowerArmPosition();
+                    seekDefault = false;
+                    armMotor.setPower(0);
+                    armTopPosition = 4;
+                    armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 }
             }
-            else if (!currentOperator.right_bumper && rBumperHeld)
-            {
-                rBumperHeld = false;
-            }
-
-            telemetry.addData("RB Held Down", rBumperHeld);
-
-            telemetry.addData("armPosition", armMotor.getCurrentPosition());
-
-            leftWheelMotor.setPower(armTopPosition == 2 ? currentOperator.left_stick_y *  -1 : currentOperator.right_stick_y);
-            rightWheelMotor.setPower(armTopPosition == 2 ? currentOperator.right_stick_y *  -1 : currentOperator.left_stick_y);
-
+            telemetry.addData("touch", touch1.getState());
+            telemetry.addData("HandState", handOpened);
             telemetry.addData("LeftStick", currentOperator.left_stick_y);
             telemetry.addData("RightStick", currentOperator.right_stick_y);
             telemetry.addData("Status", "Running");
+            telemetry.addData("Arm", armMotor.getCurrentPosition());
+            telemetry.addData("Wrist", wrist.getPosition());
             telemetry.update();
 
         }
     }
 
-    private void pushBlocks(int armTopPosition) {
-        openHand();
+    private void pushBlocks() {
+        hand.setPosition(0.25);
         sleep(2000);
-        finger.setPower(1);
+        finger.setPower(-1);
+//        finger2.setPower(-1);
         leftWheelMotor.setPower(armTopPosition == 2 ? -0.09 : 0.09);
         rightWheelMotor.setPower(armTopPosition == 2 ? -0.09 : 0.09);
         sleep(2000);
+        openHand();
         finger.setPower(0);
+//        finger2.setPower(0);
         seekLowerArmPosition();
         sleep(1000);
         leftWheelMotor.setPower(0);
@@ -209,24 +215,31 @@ public class fullRobotOpMode extends LinearOpMode {
     }
 
     private void seekLowerArmPosition(){
-        armMotor.setTargetPosition(19300);
+        armMotor.setTargetPosition(19500);
         armMotor.setPower(1);
         armTopPosition = 0;
         seekWristHorizontal();
     }
 
     private void seekLowerDropOffArmPosition(){
-        armMotor.setTargetPosition(18000);
+        armMotor.setTargetPosition(18750);
         armMotor.setPower(1);
         armTopPosition = 1;
         seekWristVertical();
     }
 
-    private void seekDefaultArmPosition(){
-        armMotor.setTargetPosition(0);
-        armMotor.setPower(1);
-        hand.setPosition(0.4);
+    private void seekDefaultPosition(){
+        openHand();
+        sleep(2000);
+        armMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        armMotor.setPower(-0.5);
+        sleep(1000);
+        if(armTopPosition == 2)
+        {
+            defaultHand();
+        }
         seekWristHorizontal();
+        seekDefault = true;
     }
 
     private void seekWristHorizontal(){
@@ -238,19 +251,33 @@ public class fullRobotOpMode extends LinearOpMode {
     }
 
     private void close2Hand(){
+        hand.setPosition(0.4);
+        handOpened = 3;
+    }
+
+    private void defaultHand(){
         hand.setPosition(0.5);
         handOpened = 3;
     }
 
     private void openHand(){
-        hand.setPosition(0.9);
+        hand.setPosition(0.1);
         handOpened = 1;
     }
 
     private void closeHand(){
-        hand.setPosition(0.1);
+        hand.setPosition(0.9);
         handOpened = 2;
     }
 
+    private void moveForward(){
+        rightWheelMotor.setPower(armTopPosition == 2 ? 1 : -1);
+        leftWheelMotor.setPower(armTopPosition == 2 ? 1 : -1);
+    }
+
+    private void moveBackward(){
+        rightWheelMotor.setPower(armTopPosition == 2 ? -1 : 1);
+        leftWheelMotor.setPower(armTopPosition == 2 ? -1 : 1);
+    }
 
 }

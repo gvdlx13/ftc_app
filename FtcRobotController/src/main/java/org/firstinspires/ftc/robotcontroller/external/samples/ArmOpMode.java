@@ -3,6 +3,7 @@ package org.firstinspires.ftc.robotcontroller.external.samples;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 
 /**
  * Created by Garrick on 2017-11-09.
@@ -11,10 +12,13 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 public class ArmOpMode extends LinearOpMode {
     private DcMotor armMotor;
+    private Servo wrist;
+
 
     @Override
     public void runOpMode() {
         armMotor = hardwareMap.get(DcMotor.class, "arm");
+        wrist = hardwareMap.servo.get("wrist");
 
         double closed = 0.4;
         double open = 0;
@@ -39,6 +43,22 @@ public class ArmOpMode extends LinearOpMode {
                 armMotor.setPower(0);
             }
 
+//            if (this.gamepad1.a)
+//            {
+//                wrist.close();
+//            }
+//
+//            if (this.gamepad1.b)
+//            {
+//                wrist.setPosition(0.5);
+//            }
+//
+//            if (this.gamepad1.x)
+//            {
+//                wrist.setPosition(0.971);
+//            }
+
+            telemetry.addData("wrist", wrist.getPosition());
             telemetry.addData("Status", "Running");
             telemetry.update();
 
