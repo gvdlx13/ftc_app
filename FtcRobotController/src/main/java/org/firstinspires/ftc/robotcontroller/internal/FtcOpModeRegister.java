@@ -37,6 +37,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpModeRegister;
 import org.firstinspires.ftc.robotcontroller.external.samples.ConceptNullOp;
 import org.firstinspires.ftc.robotcontroller.external.samples.EncoderOpMode;
 import org.firstinspires.ftc.robotcontroller.external.samples.ToucheSensorOpMode;
+import org.firstinspires.ftc.robotcontroller.external.samples.colorSensorTest;
 import org.firstinspires.ftc.robotcontroller.external.samples.fullRobotOpMode;
 
 /**
@@ -66,6 +67,7 @@ public class FtcOpModeRegister implements OpModeRegister {
      */
     public void register(OpModeManager manager) {
         manager.register("FullRob", fullRobotOpMode.class);
+        manager.register("FtcAuto1", colorSensorTest.class);
         /**
          * Any manual OpMode class registrations should go here.
          */

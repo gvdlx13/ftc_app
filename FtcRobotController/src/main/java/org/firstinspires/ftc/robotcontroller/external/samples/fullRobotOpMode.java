@@ -215,7 +215,7 @@ public class fullRobotOpMode extends LinearOpMode {
     }
 
     private void seekLowerArmPosition(){
-        armMotor.setTargetPosition(19500);
+        armMotor.setTargetPosition(19750);
         armMotor.setPower(1);
         armTopPosition = 0;
         seekWristHorizontal();
