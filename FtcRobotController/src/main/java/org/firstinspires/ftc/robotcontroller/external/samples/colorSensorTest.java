@@ -19,7 +19,6 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 @Autonomous(name="colorSensorTest", group="Linear Opmode")
 public class colorSensorTest extends LinearOpMode {
     private ColorSensor color_sensor1;
-    //private ColorSensor color_sensor2;
     private Servo hand;
     private DcMotor motorLeft;
     private DcMotor motorRight;
@@ -73,8 +72,8 @@ public class colorSensorTest extends LinearOpMode {
         armMotor.setPower(0);
         sleep(100);
 
-        motorRight.setPower(0.1);
-        motorLeft.setPower(0.1);
+        motorRight.setPower(-0.1);
+        motorLeft.setPower(-0.1);
         sleep(1700);
         motorRight.setPower(0);
         motorLeft.setPower(0);
@@ -123,11 +122,11 @@ public class colorSensorTest extends LinearOpMode {
         }
 
         if( pushFoundBall == true ) {
-            motorLeft.setPower(0.3);
-            motorRight.setPower(-0.3);
-        } else {
             motorLeft.setPower(-0.3);
             motorRight.setPower(0.3);
+        } else {
+            motorLeft.setPower(0.3);
+            motorRight.setPower(-0.3);
         }
 
         sleep(600);
@@ -137,11 +136,11 @@ public class colorSensorTest extends LinearOpMode {
 
 
         if( pushFoundBall == true ) {
-            motorLeft.setPower(-1);
-            motorRight.setPower(-0.6);
+            motorLeft.setPower(1);
+            motorRight.setPower(0.6);
         } else {
-            motorLeft.setPower(-0.6);
-            motorRight.setPower(-1);
+            motorLeft.setPower(0.6);
+            motorRight.setPower(1);
         }
 
         sleep(600);

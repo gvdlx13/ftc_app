@@ -16,7 +16,7 @@ public class fullRobotOpMode extends LinearOpMode {
     private DcMotor armMotor;
     private Servo hand;
     private CRServo finger;
-//    private CRServo finger2;
+    private CRServo finger2;
     private DcMotor leftWheelMotor;
     private DcMotor rightWheelMotor;
     private Servo wrist;
@@ -29,10 +29,9 @@ public class fullRobotOpMode extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         armMotor = hardwareMap.get(DcMotor.class, "arm");
         finger = hardwareMap.get(CRServo.class, "finger");
-//        finger2 = hardwareMap.get(CRServo.class, "finger2");
+        finger2 = hardwareMap.get(CRServo.class, "finger2");
         finger.setDirection(DcMotorSimple.Direction.REVERSE);
         finger.setDirection(DcMotorSimple.Direction.REVERSE);
-//        armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         hand = hardwareMap.get(Servo.class, "hand");
         wrist = hardwareMap.get(Servo.class, "wrist");
@@ -70,10 +69,9 @@ public class fullRobotOpMode extends LinearOpMode {
         boolean bHeld = false;
         boolean yHeld = false;
 
-        rightWheelMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        leftWheelMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        rightWheelMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        leftWheelMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        hand.scaleRange(0.1, 0.6);
         wrist.scaleRange(0.1, .8);
 
         armTopPosition = 4;
@@ -89,23 +87,6 @@ public class fullRobotOpMode extends LinearOpMode {
             boolean operator2 = armTopPosition == 2 && twoOperators;
             Gamepad currentOperator = operator2 ? this.gamepad2 : this.gamepad1;
             if(!seekDefault) {
-                if (currentOperator.b && !bHeld) {
-                    bHeld = true;
-                    if (armTopPosition >= 1 && armTopPosition != 4) {
-                        bHeld = true;
-                        pushBlocks();
-                    } else if (armTopPosition != 4) {
-                        if (handOpened != 2) {
-                            closeHand();
-                        } else {
-                            openHand();
-                        }
-                    }
-                } else if (!currentOperator.b && bHeld) {
-                    bHeld = false;
-                }
-
-                telemetry.addData("B Held Down", bHeld);
 
                 if (currentOperator.y && !yHeld) {
                     yHeld = true;
@@ -191,19 +172,19 @@ public class fullRobotOpMode extends LinearOpMode {
     }
 
     private void pushBlocks() {
-        hand.setPosition(0.25);
+        hand.setPosition(0.1);
         sleep(2000);
         finger.setPower(-1);
-//        finger2.setPower(-1);
-        leftWheelMotor.setPower(armTopPosition == 2 ? -0.09 : 0.09);
-        rightWheelMotor.setPower(armTopPosition == 2 ? -0.09 : 0.09);
+        finger2.setPower(1);
+        leftWheelMotor.setPower(armTopPosition == 2 ? -0.2 : 0.2);
+        rightWheelMotor.setPower(armTopPosition == 2 ? -0.2 : 0.2);
         sleep(2000);
         openHand();
         finger.setPower(0);
-//        finger2.setPower(0);
+        finger2.setPower(0);
         seekLowerArmPosition();
         sleep(1000);
-        leftWheelMotor.setPower(0);
+        leftWheelMotor.setPower(-0.01);
         rightWheelMotor.setPower(0);
     }
 
@@ -215,14 +196,14 @@ public class fullRobotOpMode extends LinearOpMode {
     }
 
     private void seekLowerArmPosition(){
-        armMotor.setTargetPosition(19750);
+        armMotor.setTargetPosition(20000);
         armMotor.setPower(1);
         armTopPosition = 0;
         seekWristHorizontal();
     }
 
     private void seekLowerDropOffArmPosition(){
-        armMotor.setTargetPosition(18750);
+        armMotor.setTargetPosition(18500);
         armMotor.setPower(1);
         armTopPosition = 1;
         seekWristVertical();
@@ -233,11 +214,8 @@ public class fullRobotOpMode extends LinearOpMode {
         sleep(2000);
         armMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         armMotor.setPower(-0.5);
-        sleep(1000);
-        if(armTopPosition == 2)
-        {
+        sleep(2000);
             defaultHand();
-        }
         seekWristHorizontal();
         seekDefault = true;
     }
@@ -251,22 +229,22 @@ public class fullRobotOpMode extends LinearOpMode {
     }
 
     private void close2Hand(){
-        hand.setPosition(0.4);
+        hand.setPosition(0.25);
         handOpened = 3;
     }
 
     private void defaultHand(){
-        hand.setPosition(0.5);
+        hand.setPosition(0.4);
         handOpened = 3;
     }
 
     private void openHand(){
-        hand.setPosition(0.1);
+        hand.setPosition(0.08);
         handOpened = 1;
     }
 
     private void closeHand(){
-        hand.setPosition(0.9);
+        hand.setPosition(0.5);
         handOpened = 2;
     }
 
